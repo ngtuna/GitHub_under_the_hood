@@ -33,6 +33,7 @@ It is important to note that this is very different from most SCM systems that y
 
 ##### Blob Object
 A `blob` generally stores the contents of a file.
+
 ![Alt text](/images/object-blob.png?raw=true)
 
 A `blob` object is nothing but a chunk of binary data. It doesn't refer to anything else or have attributes of any kind, not even a file name.
@@ -41,6 +42,7 @@ Since the `blob` is entirely defined by its data, if two files in a directory tr
 
 ##### Tree Object
 A `tree` is a simple object that has a bunch of pointers to `blobs` and other `trees` - it generally represents the contents of a directory or subdirectory.
+
 ![Alt text](/images/object-tree.png?raw=true)
 
 As you can see, a `tree` object contains a list of entries, each with a mode, object type, SHA1 name, and name, sorted by name. It represents the contents of a single directory tree.
@@ -49,6 +51,7 @@ An object referenced by a `tree` may be blob, representing the contents of a fil
 
 ##### Commit Object
 The `commit` object links a physical state of a `tree` with a description of how we got there and why.
+
 ![Alt text](/images/object-commit.png?raw=true)
 
 As you can see, a `commit` is defined by:
@@ -76,10 +79,12 @@ $>tree
 2 directories, 3 files
 ```
 And we committed this to a Git repository, it would be represented like this:
-![Alt text](/images/object-example.png?raw=true)
+
+![Alt text](/images/objects-example.png?raw=true)
 
 You can see that we have created a `tree` object for each directory (including the root) and a `blob` object for each file. Then we have a `commit` object to point to the root, so we can track what our project looked like when it was committed.
 
 ##### Tag Object
 A `tag` object contains an object name (called simply 'object'), object type, tag name, the name of the person ("tagger") who created the tag, and a message, which may contain a signature.
+
 ![Alt text](/images/object-tag.png?raw=true)
