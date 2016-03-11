@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	//"os"
 	"fmt"
 	"io/ioutil"
 	github "github.com/google/go-github/github"
@@ -9,66 +8,62 @@ import (
 )
 
 func GithubCommitFile(filepath, filename string) bool {
+	//////////////////////////////////
+	// Step 1: create client object //
+	//////////////////////////////////
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: "fc1d0207196310539387a9ee435f3008a61459ce"},
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 
 	client := github.NewClient(tc)
-	owner := "chanhlv93"
+	owner := "ngtuna"
 	repo := "containerization_artifact"
-	// blank := "master"
 
-	// get SHA-LATEST-COMMIT
+	///////////////////////////////////
+	// Step 2: get SHA-LATEST-COMMIT //
+	///////////////////////////////////
 	ref, _, err := client.Git.GetRef(owner, repo, "refs/heads/master")
 	if err != nil {
 		fmt.Println("Git.GetRef returned error:", err)
 		return false
 	}
 	shaLastestCommit := ref.Object.SHA
-	//fmt.Println("shaLastestCommit:", *shaLastestCommit)
-
-	// get latstest commit and then get SHA-BASE-TREE
 	getCommit, _, errGetCommit := client.Git.GetCommit(owner, repo, *shaLastestCommit)
 	if errGetCommit != nil {
 		fmt.Println("Get Commit error", errGetCommit)
 		return false
 	}
-	shaBaseTree := getCommit.Tree.SHA
-	//fmt.Println("shaBaseTree:", *shaBaseTree)
 
-	// get SHA tree and set base_tree to the SHA-BASE-TREE
+	///////////////////////////////////////////////
+	// Step 3: get SHA-LATEST-TREE of the commit //
+	///////////////////////////////////////////////
+	shaBaseTree := getCommit.Tree.SHA
 	tree, _, errTree := client.Git.GetTree(owner, repo, *shaBaseTree, false)
 	if errTree != nil {
 		fmt.Println("Git.GetTree returned error:", errTree)
 		return false
 	}
-	//fmt.Println("Path:", *tree.Entries[2].Path)
-	//path := "D:\\docker\\docker-counter-long-running\\README.md"
-	var content string
-	/*f, _ := os.Open(filepath)
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		content += line
-	}*/
 
+	//////////////////////////////////////
+	// Step 4: create blob for new file //
+	//////////////////////////////////////
+	var content string
 	dat, err := ioutil.ReadFile(filepath)
     if err != nil {
     	fmt.Println("Reading file err", err)
     	return false
     }
-    content = string(dat)
-	//fmt.Println(content)
-	//create blob
+  content = string(dat)
 	inputBlob := &github.Blob{
-		// SHA:      String("s"),
 		Content:  github.String(content),
 		Encoding: github.String("utf-8"),
-		// Size:     Int(12),
 	}
 	blob, _, err := client.Git.CreateBlob(owner, repo, inputBlob)
 
+	//////////////////////////////////////////////////////////
+	// Step 5: create new tree by adding the generated blob //
+	//////////////////////////////////////////////////////////
 	inputTree := []github.TreeEntry{
 		{
 			Path: github.String(filename),
@@ -77,8 +72,6 @@ func GithubCommitFile(filepath, filename string) bool {
 			SHA:  github.String(*blob.SHA),
 		},
 	}
-
-	//create Tree
 	newTree, _, errNewTree := client.Git.CreateTree(owner, repo, *tree.SHA, inputTree)
 	if errNewTree != nil {
 		fmt.Println("Git.CreateCommit returned error:", errNewTree)
@@ -88,9 +81,12 @@ func GithubCommitFile(filepath, filename string) bool {
 	}
 
 	shaNewTree := newTree.SHA
-	// commit Comment
+
+	/////////////////////////////////////////////////////////
+	// Step 6: create new commit pointed to generated tree //
+	/////////////////////////////////////////////////////////
 	inputCommit := &github.Commit{
-		Message: github.String("Vinhvdq commited"),
+		Message: github.String("new commit"),
 		Tree:    &github.Tree{SHA: github.String(*shaNewTree)},
 		Parents: []github.Commit{{SHA: github.String(*shaLastestCommit)}},
 	}
@@ -102,7 +98,9 @@ func GithubCommitFile(filepath, filename string) bool {
 		fmt.Println("respone:::", commit)
 	}
 
-	fmt.Println("SHA Refs:", *commit.SHA)
+	///////////////////////////////
+	// Step 7: Update branch Ref //
+	///////////////////////////////
 	updateRef, _, errUpdateRef := client.Git.UpdateRef(owner, repo, &github.Reference{
 		Ref:    github.String("refs/heads/master"),
 		Object: &github.GitObject{SHA: github.String(*commit.SHA)},
