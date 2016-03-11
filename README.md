@@ -89,6 +89,22 @@ A `tag` object contains an object name (called simply 'object'), object type, ta
 
 ![Alt text](/images/object-tag.png?raw=true)
 
+#### Understand the .Git folder
+It is the directory that stores all Git's history and meta information for your project - including all of the objects (commits, trees, blobs, tags), all of the pointers to where different branches are and more.
+
+There is only one .Git directory per project. If you look at the contents of that directory, you can see all of important hidden files:
+```
+$ tree -L 1
+.
+|-- HEAD         # pointer to your current branch
+|-- config       # your configuration preferences
+|-- description  # description of your project 
+|-- hooks/       # pre/post action hooks
+|-- index        # index file (see next section)
+|-- logs/        # a history of where your branches have been
+|-- objects/     # your objects (commits, trees, blobs, tags)
+|-- refs/        # pointers to your branches
+```
 
 #### DEMO
 A low-level process to make a new commit and push to remote branch is something like this:
