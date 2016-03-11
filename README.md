@@ -93,11 +93,11 @@ A `tag` object contains an object name (called simply 'object'), object type, ta
 #### DEMO
 A low-level process to make a new commit and push to remote branch is something like this:
 
-** Create a new file and then generate a new `blob`**
+**Create a new file and then generate a new `blob`**
 ```
 $ git hash-object -w new-commit.txt 
 ```
-** Create a new tree by adding the new generated blob**
+**Create a new tree by adding the new generated blob**
 - check the current top commit
 ```
 $ cat .git/refs/heads/master 
@@ -115,7 +115,7 @@ $ git ls-tree <sha of tree>
 ```
 $ cat /tmp/tree.txt | git mktree
 ```
-** Create a new commit pointed to the generated tree**
+**Create a new commit pointed to the generated tree**
 ```
 $ export GIT_AUTHOR_NAME=ngtuna
 $ export GIT_AUTHOR_EMAIL=ng.tuna@gmail.com
@@ -123,11 +123,11 @@ $ export GIT_COMMITTER_NAME=ngtuna
 $ export GIT_COMMITTER_EMAIL=ng.tuna@gmail.com
 $ git commit-tree <sha of generated tree> -p <parent commit> -m "commit message" < /tmp/message
 ```
-** Updating the Branch Ref**
+**Updating the Branch Ref**
 ```
 $ git update-ref refs/heads/master <sha of new commit>
 ```
-** Push to remote repo**
+**Push to remote repo**
 ```
 $ git push
 ```
