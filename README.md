@@ -88,3 +88,46 @@ You can see that we have created a `tree` object for each directory (including t
 A `tag` object contains an object name (called simply 'object'), object type, tag name, the name of the person ("tagger") who created the tag, and a message, which may contain a signature.
 
 ![Alt text](/images/object-tag.png?raw=true)
+
+
+#### DEMO
+A low-level process to make a new commit and push to remote branch is something like this:
+
+** Create a new file and then generate a new `blob`**
+```
+$ git hash-object -w new-commit.txt 
+```
+** Create a new tree by adding the new generated blob**
+- check the current top commit
+```
+$ cat .git/refs/heads/master 
+```
+- show the tree that the top commit is pointing to
+```
+$ git show -s --pretty=raw <sha of commit>
+```
+- show the content of the tree
+```
+$ git ls-tree <sha of tree>
+```
+- create a new tree by writing new content including the last blob to a temporary file `/tmp/tree.txt`
+- then make a new tree
+```
+$ cat /tmp/tree.txt | git mktree
+```
+** Create a new commit pointed to the generated tree**
+```
+$ export GIT_AUTHOR_NAME=ngtuna
+$ export GIT_AUTHOR_EMAIL=ng.tuna@gmail.com
+$ export GIT_COMMITTER_NAME=ngtuna
+$ export GIT_COMMITTER_EMAIL=ng.tuna@gmail.com
+$ git commit-tree <sha of generated tree> -p <parent commit> -m "commit message" < /tmp/message
+```
+** Updating the Branch Ref**
+```
+$ git update-ref refs/heads/master <sha of new commit>
+```
+** Push to remote repo**
+```
+$ git push
+```
