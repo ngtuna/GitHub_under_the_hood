@@ -12,13 +12,13 @@ func GithubCommitFile(filepath, filename string) bool {
 	// Step 1: create client object //
 	//////////////////////////////////
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: "fc1d0207196310539387a9ee435f3008a61459ce"},
+		&oauth2.Token{AccessToken: "token-string"},
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 
 	client := github.NewClient(tc)
-	owner := "ngtuna"
-	repo := "containerization_artifact"
+	owner := "git-user"
+	repo := "repo-name"
 
 	///////////////////////////////////
 	// Step 2: get SHA-LATEST-COMMIT //
